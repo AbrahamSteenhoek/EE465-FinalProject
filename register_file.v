@@ -6,7 +6,7 @@ input [11:0] TN;
 input CLK;
 
 output [13:0] Tsum;
-output [3:0] N;
+output reg [3:0] N;
 
 reg[11:0] TN1, TN2, TN3, TN4, TN5, TN6, TN7;
 reg[11:0] TN8, TN9, TN10, TN11, TN12, TN13, TN14;
