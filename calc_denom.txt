@@ -1,0 +1,11 @@
+force -freeze sim:/calculate_denominator/N 4'd14 0
+force -freeze sim:/calculate_denominator/sigma_hat 12'd4095 0
+force -freeze sim:/calculate_denominator/MODE 1'b1 0
+
+run
+
+force -freeze sim:/calculate_denominator/N 4'd14 0
+force -freeze sim:/calculate_denominator/sigma_hat 12'd4095 0
+force -freeze sim:/calculate_denominator/MODE 1'b0 0
+
+run

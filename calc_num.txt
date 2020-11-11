@@ -1,0 +1,13 @@
+force -freeze sim:/calculate_numerator/sigma_hat 12'd800
+force -freeze sim:/calculate_numerator/N 4'd14
+force -freeze sim:/calculate_numerator/Tsum 14'd1560
+force -freeze sim:/calculate_numerator/MODE 1'h1
+
+run
+
+force -freeze sim:/calculate_numerator/sigma_hat 12'd800
+force -freeze sim:/calculate_numerator/N 4'd14
+force -freeze sim:/calculate_numerator/Tsum 14'd1560
+force -freeze sim:/calculate_numerator/MODE 1'h0
+
+run
