@@ -1,6 +1,5 @@
 `include "register_file.v"
-`include "calculate_denominator.v"
-`include "calculate_numerator.v"
+`include "calculate_numerator_denominator.v"
 
 `timescale 1ns/1ns
 
@@ -56,19 +55,13 @@ register_file reg_file(
     .N( N )
 );
 
-calculate_denominator calc_denom(
-    .N( N ),
-    .sigma_hat( sigma_hat ),
-    .MODE( MODE ),
-    .denominator( denominator )
-);
-
-calculate_numerator calc_num(
+calculate_numerator_denominator calc_num(
     .N( N ),
     .sigma_hat( sigma_hat ),
     .MODE( MODE ),
     .Tsum( Tsum ),
-    .numerator( numerator )
+    .numerator( numerator ),
+    .denominator( denominator )
 );
 
 endmodule

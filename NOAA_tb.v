@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module NOAA_Testbench();
+module NOAA_tb();
   
   // Ports of __NOAA_Module__
   reg      CLK, RESET, MODE;
@@ -59,7 +59,6 @@ module NOAA_Testbench();
       $strobe("Reset: %d TN: %5d MODE: %d DONE: %d AVG_OR_SD: %5d expectedOutput: %5d", RESET, TN, MODE, DONE, AVG_SD, expectedOutput);
       if (AVG_SD != expectedOutput) begin
         $error("WRONG OUTPUT GENERATED!! PLEASE FIX YOUR DESIGN!!");
-        $stop;
       end
       if (scanFile == -1) begin
         $display("NOAA IoT Motes MODULE PASSED ALL TESTS!! CONGRATULATIONS!!");
