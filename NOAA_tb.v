@@ -67,7 +67,7 @@ module NOAA_tb();
     end
   end
         
-  __NOAA_Module__ IoT_Motes(
+  NOAA_module IoT_Motes(
                   .CLK(CLK),
                   .RESET(RESET),
                   .MODE(MODE),
