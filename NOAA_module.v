@@ -13,12 +13,17 @@ module NOAA_module(
     output [11:0] AVG_SD
 );
 
-wire [13:0] Tsum;
+wire [15:0] Tsum;
 wire [3:0] N;
 
 reg [11:0] sigma_hat;
 wire [32:0] numerator;
 wire [21:0] denominator;
+
+reg [3:0] N_for_calc;
+reg [11:0] sigma_hat_for_calc;
+reg [15:0] Tsum_for_calc;
+reg MODE_for_calc;
 
 initial
 begin
@@ -39,6 +44,11 @@ begin
         // DONE <= 1; ???
         if ( MODE == 1'b1 ) // update sigma_hat if we've calculated a new stddev
         begin
+            MODE_for_calc <= MODE;
+            N_for_calc <= N;
+            Tsum_for_calc <= Tsum;
+            sigma_hat_for_calc <= sigma_hat;
+
             sigma_hat <= AVG_SD;
         end
     end
@@ -57,9 +67,9 @@ register_file reg_file(
 
 calculate_numerator_denominator calc_num(
     .N( N ),
-    .sigma_hat( sigma_hat ),
-    .MODE( MODE ),
-    .Tsum( Tsum ),
+    .sigma_hat( sigma_hat_for_calc ),
+    .MODE( MODE_for_calc ),
+    .Tsum( Tsum_for_calc ),
     .numerator( numerator ),
     .denominator( denominator )
 );

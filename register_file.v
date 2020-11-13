@@ -38,7 +38,7 @@ begin
 	end
 	else begin	
 		if( SAMPLE ) begin
-			if (N <= 4'b1110) begin
+			if (N < 4'b1110) begin
 				N <= N + 1;
 			end
 			TN1 <= TN;
