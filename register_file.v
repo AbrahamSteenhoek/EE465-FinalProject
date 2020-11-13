@@ -6,7 +6,7 @@ input [11:0] TN;
 input SAMPLE;
 input CLK;
 
-output [13:0] Tsum;
+output [15:0] Tsum;
 output reg [3:0] N;
 
 reg[11:0] TN1, TN2, TN3, TN4, TN5, TN6, TN7;
@@ -38,7 +38,7 @@ begin
 	end
 	else begin	
 		if( SAMPLE ) begin
-			if (N != 4'b1110) begin
+			if (N <= 4'b1110) begin
 				N <= N + 1;
 			end
 			TN1 <= TN;
