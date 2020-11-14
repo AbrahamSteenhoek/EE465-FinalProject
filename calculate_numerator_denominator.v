@@ -9,7 +9,7 @@ module calculate_numerator_denominator(
     output [21:0] denominator
 );
 
-assign numerator = ( MODE == 0 ) ? Tsum : (sigma_hat**2)*(N**2) + (N)*(Tsum**2) - (Tsum**2);
-assign denominator = (MODE == 0) ? N : 2*sigma_hat*N**2;
+assign numerator = (sigma_hat**2)*(N**2) + (N)*(Tsum**2) - (Tsum**2);
+assign denominator = 2*sigma_hat*N**2;
 
 endmodule

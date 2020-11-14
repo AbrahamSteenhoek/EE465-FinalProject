@@ -27,20 +27,24 @@ wire [21:0] denominator;
 reg [1:0] calc_state;
 reg mode1;
 reg mode2;
-reg MODE_for_calc;
-reg [3:0] N_for_calc;
-wire [3:0] N_temp;
-assign N_temp = mode1 ? N : N_for_calc;
-wire [11:0] sigma_hat_for_calc = ( mode1 && mode2 ) ? AVG_SD : sigma_hat;
+
+wire [3:0] N_for_calc;
+reg [3:0] N_hold;
+assign N_for_calc = mode1 ? N : N_hold;
+
+reg [15:0] Tsum_hold;
 reg [15:0] Tsum_for_calc;
 
+wire [11:0] sigma_hat_for_calc;
 reg [32:0] numerator_store;
 reg [21:0] denominator_store;
 
 wire [13:0] quotient;
-wire [13:0] final_quotient;
+// wire [13:0] final_quotient;
 assign quotient = numerator_store / denominator_store;
-assign final_quotient = quotient[1]?(quotient[13:2]+1):quotient[13:2]; //performs rounding of quotient
+// assign final_quotient = quotient[1]?(quotient[13:2]+1):quotient[13:2]; //performs rounding of quotient
+
+assign sigma_hat_for_calc = ( mode1 && mode2 ) ? quotient : sigma_hat;
 
 always @ ( posedge CLK )
 begin
@@ -49,24 +53,26 @@ begin
         SAMPLE <= 1'b0;
         DONE <= 1'b0;
         sigma_hat <= 12'b010000000000; // 32deg F
+        // N <= 0;
         // MODE <= 0;
-        MODE_for_calc <= 0;
-        N_for_calc <= 0;
+        // N_for_calc <= 0;
         // sigma_hat_for_calc <= 0;
         Tsum_for_calc <= 0;
         calc_state <= 0;
         numerator_store <= 0;
         denominator_store <= 0;
+        mode1 <= 0;
+        mode2 <= 0;
     end
     else
     begin
         SAMPLE <= 1'b1; // should be able to sample every CLK cycle
         if ( SAMPLE )
         begin
-            // MODE_for_calc <= MODE;
-            // N_temp <= N;
-            N_for_calc <= N_temp;
-            Tsum_for_calc <= Tsum;
+            Tsum_hold <= Tsum;
+            Tsum_for_calc <= Tsum_hold;
+
+            N_hold <= N_for_calc;
 
             mode1 <= MODE;
             calc_state[0] <= 1; // we have received an input in the first calculating stage
@@ -85,20 +91,19 @@ begin
             mode2 <= mode1;
         end
         else
-            calc_state[1] <= 0;
+            calc_state[1] <= 0; // no new data in 2nd stage
 
         if ( calc_state[1] ) // data available in the second stage
         begin
-            AVG_SD <= final_quotient;
+            AVG_SD <= quotient; // perform the division
 
             if ( mode2 == 1'b1 ) // update sigma_hat if we've calculated a new stddev
-                sigma_hat <= final_quotient;
+                sigma_hat <= quotient;
 
             DONE <= 1;
         end
         else
-            DONE <= 0;
-
+            DONE <= 0; // no new output ready yet
     end
 end
 
@@ -116,8 +121,8 @@ register_file reg_file(
 );
 
 calculate_numerator_denominator calc_num(
-    .N( N_temp ),
-    .sigma_hat( sigma_hat ),
+    .N( N_for_calc ),
+    .sigma_hat( sigma_hat_for_calc ),
     .MODE( mode2 ),
     .Tsum( Tsum_for_calc ),
     .numerator( numerator ),
