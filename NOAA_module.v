@@ -24,7 +24,9 @@ wire [21:0] denominator;
 // assign final_quotient_rounded = final_quotient[1] ? ( quotient[13:2] + 1 ) : quotient[13:2];
 
 
-reg [1:0] calc_state;
+reg calc_state1;
+reg calc_state2;
+
 reg mode1;
 reg mode2;
 
@@ -53,12 +55,17 @@ begin
         SAMPLE <= 1'b0;
         DONE <= 1'b0;
         sigma_hat <= 12'b010000000000; // 32deg F
+        AVG_SD <= 0;
         // N <= 0;
         // MODE <= 0;
         // N_for_calc <= 0;
         // sigma_hat_for_calc <= 0;
         Tsum_for_calc <= 0;
+
         calc_state <= 0;
+        calc_state0 <= 0;
+        calc_state1 <= 0;
+
         numerator_store <= 0;
         denominator_store <= 0;
         mode1 <= 0;
@@ -69,31 +76,34 @@ begin
         SAMPLE <= 1'b1; // should be able to sample every CLK cycle
         if ( SAMPLE )
         begin
+            if (N < 4'b1110) begin
+                N <= N + 1;
+            end
             Tsum_hold <= Tsum;
             Tsum_for_calc <= Tsum_hold;
 
             N_hold <= N_for_calc;
 
             mode1 <= MODE;
-            calc_state[0] <= 1; // we have received an input in the first calculating stage
+            calc_state1 <= 1; // we have received an input in the first calculating stage
         end
         else
-            calc_state[0] = 0; // no new input in the first calculating stage
+            calc_state1 = 0; // no new input in the first calculating stage
 
-        if ( calc_state[0] ) // data available in first stage
+        if ( calc_state1 ) // data available in first stage
         begin
             // process data needed for second stage
 
             numerator_store <= (mode1)? ( numerator << 1 ) : ( Tsum << 2 );
             denominator_store <= (mode1) ? (denominator) : (N);
 
-            calc_state[1] <= 1;
+            calc_state2 <= 1;
             mode2 <= mode1;
         end
         else
-            calc_state[1] <= 0; // no new data in 2nd stage
+            calc_state2 <= 0; // no new data in 2nd stage
 
-        if ( calc_state[1] ) // data available in the second stage
+        if ( calc_state2 ) // data available in the second stage
         begin
             AVG_SD <= quotient; // perform the division
 
@@ -106,10 +116,6 @@ begin
             DONE <= 0; // no new output ready yet
     end
 end
-
-
-// reg instead?
-// assign AVG_SD = numerator / denominator; // do we need to do rounding?
 
 register_file reg_file(
     .RESET( RESET ),
