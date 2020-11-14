@@ -20,12 +20,6 @@ reg [11:0] sigma_hat;
 wire [32:0] numerator;
 wire [21:0] denominator;
 
-wire [13:0] final_quotient;
-assign final_quotient = numerator_store / denominator_store;
-wire [11:0] final_quotient_rounded;
-assign final_quotient_rounded = final_quotient[1] ? ( quotient[13:2] + 1 ) : quotient[13:2];
-
-
 reg mode1;
 reg mode2;
 reg MODE_for_calc;
@@ -36,6 +30,11 @@ reg [15:0] Tsum_for_calc;
 
 reg [32:0] numerator_store;
 reg [21:0] denominator_store;
+wire [13:0] final_quotient;
+assign final_quotient = numerator_store / denominator_store;
+wire [11:0] final_quotient_rounded;
+assign final_quotient_rounded = final_quotient[1] ? ( final_quotient[13:2] + 1 ) : final_quotient[13:2];
+
 
 always @ ( posedge CLK )
 begin
