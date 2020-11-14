@@ -8,17 +8,6 @@ module NOAA_tb();
   wire     SAMPLE, DONE;
   wire     [11:0] AVG_SD;
   
-  
-  // Integers for checking test data
-  integer  dataFile;
-  integer  scanFile;
-  
-  // Dummy registers for building test stimulus
-  reg      mode;
-  reg      [11:0] newInput;
-  reg      [11:0] expectedOutput;
-  
-  
   // // Checking for availability of test data
   // initial begin
   //   $display("Initiating NOAA IoT Motes Module Testing Phase!! Good Luck!!");

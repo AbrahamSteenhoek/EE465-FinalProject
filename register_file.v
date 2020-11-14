@@ -37,10 +37,10 @@ begin
 	N <= 4'b0;
 	end
 	else begin	
-		if( SAMPLE ) begin
-			if (N < 4'b1110) begin
-				N <= N + 1;
-			end
+		if (N < 4'b1110) begin
+			N <= N + 1;
+		end
+		if( SAMPLE && N > 1'b0 ) begin
 			TN1 <= TN;
 			TN2 <= TN1;
 			TN3 <= TN2;
