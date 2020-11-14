@@ -35,7 +35,6 @@ assign final_quotient = numerator_store / denominator_store;
 wire [11:0] final_quotient_rounded;
 assign final_quotient_rounded = final_quotient[1] ? ( final_quotient[13:2] + 1 ) : final_quotient[13:2];
 
-
 always @ ( posedge CLK )
 begin
     if ( RESET )
