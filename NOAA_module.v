@@ -38,7 +38,7 @@ reg [32:0] numerator_store;
 wire [21:0] denominator;
 reg [21:0] denominator_store;
 
-wire [13:0] quotient;
+wire [13:0] quotient; // needs to be 14 bits instead of 12 bits because of having to multiply numerator by 4
 wire [11:0] quotient_rounded;
 
 // This is an idea to save switching for these regs, idk if it'll work
