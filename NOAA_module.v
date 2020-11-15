@@ -13,47 +13,41 @@ module NOAA_module(
     output reg [11:0] AVG_SD
 );
 
-wire [15:0] Tsum;
-wire [27:0] Tsum_square;
 reg [3:0] N;
+wire [3:0] N_for_calc;
+reg [3:0] N_hold;
 
-reg [11:0] sigma_hat;
-wire [32:0] numerator;
-wire [21:0] denominator;
+wire [15:0] Tsum;
+reg [15:0] Tsum_hold;
+wire [15:0] Tsum_calc;
 
-reg [1:0] mode;
-reg [1:0] calc_state;
+wire [27:0] Tsum_square;
+reg [27:0] Tsum_square_hold;
+wire [27:0] Tsum_square_calc;
 
 reg mode1;
 reg mode2;
+reg [1:0] calc_state;
 
-wire [3:0] N_for_calc;
-reg [3:0] N_hold;
+reg [11:0] sigma_hat;
+wire [11:0] sigma_hat_for_calc;
+
+wire [32:0] numerator;
+reg [32:0] numerator_store;
+wire [21:0] denominator;
+reg [21:0] denominator_store;
+
+wire [13:0] quotient;
+wire [11:0] quotient_rounded;
+
+// This is an idea to save switching for these regs, idk if it'll work
 assign N_for_calc = mode1 ? N : N_hold;
-
-reg [15:0] Tsum_hold;
-reg [27:0] Tsum_square_hold;
-wire [15:0] Tsum_calc;
-wire [27:0] Tsum_square_calc;
-// reg [15:0] Tsum_for_calc;
-
 assign Tsum_calc = ( mode1 ) ? Tsum : Tsum_hold;
 assign Tsum_square_calc = ( mode1 ) ? Tsum_square : Tsum_square_hold;
 
-wire [11:0] sigma_hat_for_calc;
-reg [32:0] numerator_store;
-reg [21:0] denominator_store;
-wire [13:0] final_quotient;
-assign final_quotient = numerator_store / denominator_store;
-wire [11:0] final_quotient_rounded;
-assign final_quotient_rounded = final_quotient[1] ? ( final_quotient[13:2] + 1 ) : final_quotient[13:2];
-
-wire [13:0] quotient;
-wire [11:0] final_result;
 assign quotient = numerator_store / denominator_store;
-assign final_result[11:0] = quotient[1]?(quotient[13:2]+1):quotient[13:2]; // round up if needed
-
-assign sigma_hat_for_calc = ( mode1 && mode2 ) ? final_result : sigma_hat;
+assign quotient_rounded[11:0] = quotient[1]?(quotient[13:2]+1):quotient[13:2]; // round up if needed
+assign sigma_hat_for_calc = ( mode1 && mode2 ) ? quotient_rounded : sigma_hat;
 
 always @ ( posedge CLK )
 begin
@@ -64,13 +58,12 @@ begin
         sigma_hat <= 12'b010000000000; // 32deg F
         AVG_SD <= 0;
         N <= 0;
-        // Tsum_for_calc <= 0;
 
         calc_state <= 0;
 
         numerator_store <= 0;
         denominator_store <= 0;
-        // mode = 0;
+
         mode1 <= 0;
         mode2 <= 0;
     end
@@ -91,8 +84,8 @@ begin
             mode1 <= MODE;
             calc_state[0] <= 1;
         end
-        else
-            calc_state[0] <= 0;
+        // else
+        //     calc_state[0] <= 0;
 
         if ( calc_state[0] ) // data available in first stage
         begin
@@ -102,15 +95,15 @@ begin
             calc_state[1] <= 1;
             mode2 <= mode1;
         end
-        else
-            calc_state[1] <= 0; // no new data in 2nd stage
+        // else
+        //     calc_state[1] <= 0; // no new data in 2nd stage
 
         if ( calc_state[1] ) // data available in the second stage
         begin
             if ( mode2 == 1'b1 ) // update sigma_hat if we've calculated a new stddev
-                sigma_hat <= final_result;
+                sigma_hat <= quotient_rounded;
 
-            AVG_SD <= final_result; // perform the division
+            AVG_SD <= quotient_rounded; // perform the division
             DONE <= 1;
         end
         else
