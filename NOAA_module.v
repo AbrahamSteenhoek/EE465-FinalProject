@@ -122,14 +122,6 @@ register_file reg_file(
     .SAMPLE( SAMPLE ),
     .CLK( CLK ),
     .Tsum( Tsum ),
-    .N( N )
-);
-
-register_file_squares reg_file_squares(
-    .RESET( RESET ),
-    .TN( TN ),
-    .SAMPLE( SAMPLE ),
-    .CLK( CLK ),
     .Tsum_square( Tsum_square ),
     .N( N )
 );

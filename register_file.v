@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module register_file(RESET, TN, SAMPLE, CLK, Tsum, Tsum_sqr, N);
+module register_file(RESET, TN, SAMPLE, CLK, Tsum, Tsum_square, N);
 input RESET;
 input [11:0] TN;
 input SAMPLE;
@@ -88,7 +88,8 @@ begin
 		end
 	end
 end
+
 assign Tsum = TN1 + TN2 + TN3 + TN4 + TN5 + TN6 + TN7 + TN8 + TN9 + TN10 + TN11 + TN12 + TN13 + TN14;
-assign Tsum_sqr = TN1 + TN2 + TN3 + TN4 + TN5 + TN6 + TN7 + TN8 + TN9 + TN10 + TN11 + TN12 + TN13 + TN14;
+assign Tsum_square = TN1_sqr + TN2_sqr + TN3_sqr + TN4_sqr + TN5_sqr + TN6_sqr + TN7_sqr + TN8_sqr + TN9_sqr + TN10_sqr + TN11_sqr + TN12_sqr + TN13_sqr + TN14_sqr;
 
 endmodule
