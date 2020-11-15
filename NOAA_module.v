@@ -21,6 +21,9 @@ reg [11:0] sigma_hat;
 wire [32:0] numerator;
 wire [21:0] denominator;
 
+reg [1:0] mode;
+reg [1:0] calc_state;
+
 reg mode1;
 reg mode2;
 
@@ -76,16 +79,15 @@ begin
         SAMPLE <= 1'b1; // should be able to sample every CLK cycle
         if ( SAMPLE )
         begin
-            if (N < 4'b1110) begin
+            if (N < 14) begin
                 N <= N + 1;
             end
-            // Tsum_for_calc <= Tsum;
+
             Tsum_hold <= Tsum_calc;
             Tsum_square_hold <= Tsum_calc;
 
             N_hold <= N_for_calc;
 
-            // mode[0] <= MODE;
             mode1 <= MODE;
             calc_state[0] <= 1;
         end
@@ -94,10 +96,9 @@ begin
 
         if ( calc_state[0] ) // data available in first stage
         begin
-            numerator_store <= ( mode1 ) ? ( numerator << 1 ) : ( Tsum << 2 );
+            numerator_store <= ( mode1 ) ? ( numerator << 2 ) : ( Tsum << 2 ); // not sure why I have to multiply the numerator by 4, but whatever
             denominator_store <= ( mode1 ) ? ( denominator ) : ( N );
 
-            // mode[1] <= mode[0];
             calc_state[1] <= 1;
             mode2 <= mode1;
         end
