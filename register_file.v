@@ -1,16 +1,19 @@
 `timescale 1ns/1ps
 
-module register_file(RESET, TN, SAMPLE, CLK, Tsum , N);
+module register_file(RESET, TN, SAMPLE, CLK, Tsum, Tsum_sqr, N);
 input RESET;
 input [11:0] TN;
 input SAMPLE;
 input CLK;
 
 output [15:0] Tsum;
+output [27:0] Tsum_square;
 input [3:0] N;
 
 reg[11:0] TN1, TN2, TN3, TN4, TN5, TN6, TN7;
 reg[11:0] TN8, TN9, TN10, TN11, TN12, TN13, TN14;
+
+reg[23:0] TN1_sqr, TN2_sqr, TN3_sqr, TN4_sqr, TN5_sqr, TN6_sqr, TN7_sqr, TN8_sqr, TN9_sqr, TN10_sqr, TN11_sqr, TN12_sqr, TN13_sqr, TN14_sqr;
 
 initial
 begin
@@ -34,6 +37,21 @@ begin
 	TN12 <= 1'b0;
 	TN13 <= 1'b0;
 	TN14 <= 1'b0;
+
+	TN1_sqr <= 1'b0;
+	TN2_sqr <= 1'b0;
+	TN3_sqr <= 1'b0;
+	TN4_sqr <= 1'b0;
+	TN5_sqr <= 1'b0;
+	TN6_sqr <= 1'b0;
+	TN7_sqr <= 1'b0;
+	TN8_sqr <= 1'b0;
+	TN9_sqr <= 1'b0;
+	TN10_sqr <= 1'b0;
+	TN11_sqr <= 1'b0;
+	TN12_sqr <= 1'b0;
+	TN13_sqr <= 1'b0;
+	TN14_sqr <= 1'b0;
 	// N <= 4'b0;
 	end
 	else begin	
@@ -52,9 +70,25 @@ begin
 			TN12 <= TN11;
 			TN13 <= TN12;
 			TN14 <= TN13;
+
+			TN1_sqr <= TN**2;
+			TN2_sqr <= TN1_sqr;
+			TN3_sqr <= TN2_sqr;
+			TN4_sqr <= TN3_sqr;
+			TN5_sqr <= TN4_sqr;
+			TN6_sqr <= TN5_sqr;
+			TN7_sqr <= TN6_sqr;
+			TN8_sqr <= TN7_sqr;
+			TN9_sqr <= TN8_sqr;
+			TN10_sqr <= TN9_sqr;
+			TN11_sqr <= TN10_sqr;
+			TN12_sqr <= TN11_sqr;
+			TN13_sqr <= TN12_sqr;
+			TN14_sqr <= TN13_sqr;
 		end
 	end
 end
 assign Tsum = TN1 + TN2 + TN3 + TN4 + TN5 + TN6 + TN7 + TN8 + TN9 + TN10 + TN11 + TN12 + TN13 + TN14;
+assign Tsum_sqr = TN1 + TN2 + TN3 + TN4 + TN5 + TN6 + TN7 + TN8 + TN9 + TN10 + TN11 + TN12 + TN13 + TN14;
 
 endmodule
