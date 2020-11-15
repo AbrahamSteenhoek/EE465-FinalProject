@@ -25,9 +25,10 @@ wire [27:0] Tsum_square;
 reg [27:0] Tsum_square_hold;
 wire [27:0] Tsum_square_calc;
 
-reg mode1;
+reg mode1; // used to transfer keep the mode that was given with the input
 reg mode2;
-reg [1:0] calc_state;
+reg [1:0] calc_state; // in what stage of the calculation pipeline are we in
+//(basically used when the module is reset to get the pipeline going)
 
 reg [11:0] sigma_hat;
 wire [11:0] sigma_hat_for_calc;
@@ -47,7 +48,7 @@ assign Tsum_square_calc = ( mode1 ) ? Tsum_square : Tsum_square_hold;
 
 assign quotient = numerator_store / denominator_store;
 assign quotient_rounded[11:0] = quotient[1]?(quotient[13:2]+1):quotient[13:2]; // round up if needed
-assign sigma_hat_for_calc = ( mode1 && mode2 ) ? quotient_rounded : sigma_hat;
+assign sigma_hat_for_calc = ( mode1 && mode2 ) ? quotient_rounded : sigma_hat; // use the latest sigma_hat if we've calculated a two stddev's in a row
 
 always @ ( posedge CLK )
 begin
@@ -84,8 +85,6 @@ begin
             mode1 <= MODE;
             calc_state[0] <= 1;
         end
-        // else
-        //     calc_state[0] <= 0;
 
         if ( calc_state[0] ) // data available in first stage
         begin
@@ -95,8 +94,6 @@ begin
             calc_state[1] <= 1;
             mode2 <= mode1;
         end
-        // else
-        //     calc_state[1] <= 0; // no new data in 2nd stage
 
         if ( calc_state[1] ) // data available in the second stage
         begin
