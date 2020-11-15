@@ -14,7 +14,8 @@ module NOAA_module(
 );
 
 wire [15:0] Tsum;
-wire [3:0] N;
+wire [27:0] Tsum_square;
+reg [3:0] N;
 
 reg [11:0] sigma_hat;
 wire [32:0] numerator;
@@ -22,18 +23,34 @@ wire [21:0] denominator;
 
 reg mode1;
 reg mode2;
-reg MODE_for_calc;
-reg [3:0] N_for_calc;
-reg [3:0] N_temp;
-wire [11:0] sigma_hat_for_calc = ( mode1 && mode2 ) ? AVG_SD : sigma_hat;
-reg [15:0] Tsum_for_calc;
 
+wire [3:0] N_for_calc;
+reg [3:0] N_hold;
+assign N_for_calc = mode1 ? N : N_hold;
+
+reg [15:0] Tsum_hold;
+reg [27:0] Tsum_square_hold;
+wire [15:0] Tsum_calc;
+wire [27:0] Tsum_square_calc;
+// reg [15:0] Tsum_for_calc;
+
+assign Tsum_calc = ( mode1 ) ? Tsum : Tsum_hold;
+assign Tsum_square_calc = ( mode1 ) ? Tsum_square : Tsum_square_hold;
+
+wire [11:0] sigma_hat_for_calc;
 reg [32:0] numerator_store;
 reg [21:0] denominator_store;
 wire [13:0] final_quotient;
 assign final_quotient = numerator_store / denominator_store;
 wire [11:0] final_quotient_rounded;
 assign final_quotient_rounded = final_quotient[1] ? ( final_quotient[13:2] + 1 ) : final_quotient[13:2];
+
+wire [13:0] quotient;
+wire [11:0] final_result;
+assign quotient = numerator_store / denominator_store;
+assign final_result[11:0] = quotient[1]?(quotient[13:2]+1):quotient[13:2]; // round up if needed
+
+assign sigma_hat_for_calc = ( mode1 && mode2 ) ? final_result : sigma_hat;
 
 always @ ( posedge CLK )
 begin
@@ -42,41 +59,63 @@ begin
         SAMPLE <= 1'b0;
         DONE <= 1'b0;
         sigma_hat <= 12'b010000000000; // 32deg F
-        // MODE <= 0;
-        MODE_for_calc <= 0;
-        N_for_calc <= 0;
-        // sigma_hat_for_calc <= 0;
-        Tsum_for_calc <= 0;
-        // calc_state <= 0;
+        AVG_SD <= 0;
+        N <= 0;
+        // Tsum_for_calc <= 0;
+
+        calc_state <= 0;
+
+        numerator_store <= 0;
+        denominator_store <= 0;
+        // mode = 0;
+        mode1 <= 0;
+        mode2 <= 0;
     end
     else
     begin
         SAMPLE <= 1'b1; // should be able to sample every CLK cycle
-        // MODE_for_calc <= MODE;
-        N_temp <= N;
-        N_for_calc <= N_temp;
-        Tsum_for_calc <= Tsum;
-
-        mode1 <= MODE;
-        mode2 <= mode1;
-
-        numerator_store <= numerator;
-        denominator_store <= denominator;
-
-        AVG_SD <= final_quotient_rounded;
-        // DONE <= 1; ???
-        if ( mode2 == 1'b1 ) // update sigma_hat if we've calculated a new stddev
+        if ( SAMPLE )
         begin
-            // sigma_hat_for_calc <= sigma_hat;
+            if (N < 4'b1110) begin
+                N <= N + 1;
+            end
+            // Tsum_for_calc <= Tsum;
+            Tsum_hold <= Tsum_calc;
+            Tsum_square_hold <= Tsum_calc;
 
-            sigma_hat <= final_quotient_rounded;
+            N_hold <= N_for_calc;
+
+            // mode[0] <= MODE;
+            mode1 <= MODE;
+            calc_state[0] <= 1;
+        end
+        else
+            calc_state[0] <= 0;
+
+        if ( calc_state[0] ) // data available in first stage
+        begin
+            numerator_store <= ( mode1 ) ? ( numerator << 1 ) : ( Tsum << 2 );
+            denominator_store <= ( mode1 ) ? ( denominator ) : ( N );
+
+            // mode[1] <= mode[0];
+            calc_state[1] <= 1;
+            mode2 <= mode1;
+        end
+        else
+            calc_state[1] <= 0; // no new data in 2nd stage
+
+        if ( calc_state[1] ) // data available in the second stage
+        begin
+            if ( mode2 == 1'b1 ) // update sigma_hat if we've calculated a new stddev
+                sigma_hat <= final_result;
+
+            AVG_SD <= final_result; // perform the division
             DONE <= 1;
         end
+        else
+            DONE <= 0; // no new output ready yet
     end
 end
-
-// reg instead?
-// assign AVG_SD = numerator / denominator; // do we need to do rounding?
 
 register_file reg_file(
     .RESET( RESET ),
@@ -84,14 +123,15 @@ register_file reg_file(
     .SAMPLE( SAMPLE ),
     .CLK( CLK ),
     .Tsum( Tsum ),
+    .Tsum_square( Tsum_square ),
     .N( N )
 );
 
 calculate_numerator_denominator calc_num(
     .N( N_for_calc ),
-    .sigma_hat( sigma_hat ),
-    .MODE( mode2 ),
-    .Tsum( Tsum_for_calc ),
+    .sigma_hat( sigma_hat_for_calc ),
+    .Tsum( Tsum_calc ),
+    .Tsum_square( Tsum_square_calc ),
     .numerator( numerator ),
     .denominator( denominator )
 );

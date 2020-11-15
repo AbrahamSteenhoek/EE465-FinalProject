@@ -129,4 +129,4 @@ module NOAA_tb();
                   .DONE(DONE),
                   .AVG_SD(AVG_SD)
                   );
-endmodule                    
+endmodule
