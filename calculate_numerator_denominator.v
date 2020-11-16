@@ -3,7 +3,7 @@
 module calculate_numerator_denominator(
     input [11:0] sigma_hat,
     input [3:0] N,
-    input [13:0] Tsum,
+    input [15:0] Tsum,
     input [27:0] Tsum_square,
     output [32:0] numerator, // can be up to 33 bits large
     output [21:0] denominator
