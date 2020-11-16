@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module register_file(RESET, TN, SAMPLE, CLK, Tsum, Tsum_square, N);
+module register_file(RESET, TN, SAMPLE, CLK, Tsum, Tsum_square );
 input RESET;
 input [11:0] TN;
 input SAMPLE;
@@ -8,18 +8,12 @@ input CLK;
 
 output [15:0] Tsum;
 output [27:0] Tsum_square;
-input [3:0] N;
 
 reg[11:0] TN1, TN2, TN3, TN4, TN5, TN6, TN7;
 reg[11:0] TN8, TN9, TN10, TN11, TN12, TN13, TN14;
 
 reg[23:0] TN1_sqr, TN2_sqr, TN3_sqr, TN4_sqr, TN5_sqr, TN6_sqr, TN7_sqr;
 reg[23:0] TN8_sqr, TN9_sqr, TN10_sqr, TN11_sqr, TN12_sqr, TN13_sqr, TN14_sqr;
-
-initial
-begin
-// N <= 4'b1100;//change to reactive
-end
 
 always @ (posedge CLK)
 begin
@@ -53,7 +47,6 @@ begin
 	TN12_sqr <= 1'b0;
 	TN13_sqr <= 1'b0;
 	TN14_sqr <= 1'b0;
-	// N <= 4'b0;
 	end
 	else begin	
 		if( SAMPLE ) begin
