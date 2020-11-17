@@ -23,7 +23,7 @@ module NOAA_Testbench();
   initial begin
     $display("Initiating NOAA IoT Motes Module Testing Phase!! Good Luck!!");
     // Change the test data filename below
-    dataFile = $fopen("NOAA_Test_Data_30.txt", "r");
+    dataFile = $fopen("NOAA_Test_Data_30.csv", "r");
     if (dataFile == 0)
       begin
         $display("Data file does not exist");

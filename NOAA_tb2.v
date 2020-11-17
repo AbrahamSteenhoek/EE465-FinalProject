@@ -21,7 +21,7 @@ module NOAA_tb();
   always #10 CLK = ~CLK; 
 
 // copied numbers from NOAA_Test_Data_30_n.xlsx
-  initial begin // numbers from test dataset of 100
+  initial begin // numbers from test dataset of 30
     #65
     TN = 1383;	MODE = 0;
     #20
@@ -223,6 +223,7 @@ module NOAA_tb();
     #20
     TN = 1528;	MODE = 1;
     #20;
+
   end
 
   NOAA_module IoT_Motes(
