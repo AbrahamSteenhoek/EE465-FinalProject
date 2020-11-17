@@ -78,7 +78,7 @@ begin
             end
 
             Tsum_hold <= Tsum_calc;
-            Tsum_square_hold <= Tsum_calc;
+            Tsum_square_hold <= Tsum_square_calc;
 
             N_hold <= N_for_calc;
 
@@ -114,8 +114,7 @@ register_file reg_file(
     .SAMPLE( SAMPLE ),
     .CLK( CLK ),
     .Tsum( Tsum ),
-    .Tsum_square( Tsum_square ),
-    .N( N )
+    .Tsum_square( Tsum_square )
 );
 
 calculate_numerator_denominator calc_num(
